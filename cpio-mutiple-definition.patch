@@ -1,0 +1,13 @@
+diff -Naurp cpio-2.13/src/global.c cpio-2.13.new/src/global.c
+--- cpio-2.13/src/global.c	2019-11-03 07:07:23.000000000 -0800
++++ cpio-2.13.new/src/global.c	2020-09-22 17:00:52.066122682 -0700
+@@ -184,9 +184,6 @@ unsigned int warn_option = 0;
+ /* Extract to standard output? */
+ bool to_stdout_option = false;
+ 
+-/* The name this program was run with.  */
+-char *program_name;
+-
+ /* A pointer to either lstat or stat, depending on whether
+    dereferencing of symlinks is done for input files.  */
+ int (*xstat) ();

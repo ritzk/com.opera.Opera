@@ -1,0 +1,106 @@
+app-id: com.opera.Opera
+runtime: org.freedesktop.Platform
+runtime-version: '20.08'
+sdk: org.freedesktop.Sdk
+separate-locales: false
+command: opera
+tags:
+  - proprietary
+finish-args:
+  - --socket=wayland
+  - --socket=x11
+  - --share=ipc
+  # - --device=all
+  - --socket=pulseaudio
+  - --share=network
+  - --persist=.config/opera
+  - --filesystem=xdg-download
+cleanup:
+  - /include
+  - /lib/*.a
+  - /lib/*.la
+  - /lib/pkgconfig
+  - /share/man
+modules:
+  - name: cpio
+    buildsystem: autotools
+    sources:
+      - type: archive
+        url: https://ftp.gnu.org/gnu/cpio/cpio-2.13.tar.gz
+        sha256: e87470d9c984317f658567c03bfefb6b0c829ff17dbf6b0de48d71a4c8f3db88 
+      - type: patch
+        path: cpio-mutiple-definition.patch
+  - name: rpm2cpio
+    buildsystem: simple
+    sources:
+      - type: archive
+        url: https://github.com/ruda/rpm2cpio/archive/2017.tar.gz
+        sha256: d266a4f49e65b5d05956502549ceb1d5671f927375ff71299069e6d92363297a
+      - type: patch
+        path: rpm2cpio.patch
+    build-commands:
+      - install -D rpm2cpio.py /app/bin/rpm2cpio
+  - name: zypak
+    sources:
+      - type: git
+        url: https://github.com/refi64/zypak
+        tag: v2020.10beta.3
+      - type: patch
+        path: zypack-opera.patch
+  - name: opera
+    buildsystem: simple
+    build-commands:
+      - install -D -t "${FLATPAK_DEST}/bin/" apply_extra
+      - install -Dm755 -t "${FLATPAK_DEST}/bin/" opera
+      - install -Dm644 -t "${FLATPAK_DEST}/share/appdata/" com.opera.Opera.appdata.xml 
+      - install -Dm644 -t "${FLATPAK_DEST}/share/applications/" com.opera.Opera.desktop
+      - ARCH_TRIPLE="$(gcc --print-multiarch)" && ln -s "/usr/lib/${ARCH_TRIPLE}/libudev.so.1" /app/lib/libudev.so.0
+      # - install -Dm644 icon16x16.png "${FLATPAK_DEST}/share/icons/hicolor/16x16/apps/${FLATPAK_ID}.png"
+      # - install -Dm644 icon32x32.png "${FLATPAK_DEST}/share/icons/hicolor/32x32/apps/${FLATPAK_ID}.png"
+      # - install -Dm644 icon48x48.png "${FLATPAK_DEST}/share/icons/hicolor/48x48/apps/${FLATPAK_ID}.png"
+      # - install -Dm644 icon128x128.png "${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/${FLATPAK_ID}.png"
+      # - install -Dm644 icon256x256.png "${FLATPAK_DEST}/share/icons/hicolor/256x256/apps/${FLATPAK_ID}.png"
+    sources:
+      # pull from ./usr/share/icons/hicolor/<size>/apps/opera.png
+      # - type: file
+      #   path: icon16x16.png
+      # - type: file
+      #   path: icon32x32.png
+      # - type: file
+      #   path: icon48x48.png
+      # - type: file
+      #   path: icon128x128.png
+      # - type: file
+      #   path: icon256x256.png
+      - type: file
+        path: com.opera.Opera.appdata.xml
+      - type: file
+        path: com.opera.Opera.desktop        
+      - type: extra-data
+        filename: opera.rpm
+        url: https://download3.operacdn.com/pub/opera/desktop/71.0.3770.148/linux/opera-stable_71.0.3770.148_amd64.rpm
+        sha256: 088b6a548eadfed033dc7f83680e4536a0e869314638bb9a627dab186ec9b8d1
+        size: 65577748
+        only-arches": 
+          - "x86_64"
+      - type: extra-data
+        filename: ffmpeg.zip
+        url: https://github.com/iteufel/nwjs-ffmpeg-prebuilt/releases/download/0.47.2/0.47.2-linux-x64.zip
+        sha256: a76f8ee6efc9b516564548b4fb489e2bbb9dc864fbf7199fd4b70829b13cd04d
+        size: 4914183
+      - type: script
+        dest-filename: apply_extra
+        commands:
+          - rpm2cpio opera.rpm | cpio -idmv
+          - mv usr/lib64/opera .
+          - rm -rf usr
+          - rm -rf opera.rpm
+          - unzip ffmpeg.zip
+          - rm ffmpeg.zip
+          - mv libffmpeg.so opera/libffmpeg.so
+      - type: script
+        dest-filename: opera
+        commands:
+          - "export TMPDIR=\"$XDG_RUNTIME_DIR/app/$FLATPAK_ID\""
+          - "export LD_LIBRARY_PATH=/app/opera"
+          - "exec zypak-wrapper.sh /app/extra/opera/opera $@ 2>&1"

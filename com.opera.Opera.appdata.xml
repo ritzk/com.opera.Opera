@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>com.opera.Opera</id>
+  <launchable type="desktop-id">com.opera.Opera.desktop</launchable>
+  <name>Opera browser</name>
+  <summary>Fast and secure Opera web browser</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LicenseRef-proprietary</project_license>
+  <developer_name>Opera</developer_name>
+  <url type="homepage">https://www.opera.com</url>
+  <description>
+    <p>
+      Opera is a fast, secure, and user-friendly web browser. It includes a built-in ad blocker, Video pop-out, and free VPN.
+    </p>
+    <p>
+      NOTE: This wrapper is not verified by, affiliated with, or supported by Opera Software AS.
+    </p>
+  </description>
+  <!-- <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/ritz/com.opera.Opera/master/screenshots/opera.png</image>
+    </screenshot>
+  </screenshots> -->
+  <update_contact>khadgaray+flatpak_AT_gmail_DOT_com</update_contact>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release date="2020-09-16" version="a 71.0.3770.148 "/>
+  </releases>
+</component>
